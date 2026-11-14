@@ -1,0 +1,24 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "zerith-near",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-10-30",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    // These paths reach the Worker code; everything else is served straight from dist/.
+    "run_worker_first": ["/api/*"]
+  },
+  "durable_objects": {
+    "bindings": [{ "name": "RELAYER", "class_name": "Relayer" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Relayer"] }],
+  "vars": {
+    "NEAR_NETWORK": "testnet",
+    // Public. The pool and USDC ids come from src/lib/near-rpc.ts (NETWORKS).
+    "NEAR_RELAYER_ACCOUNT": "zerith-relayer-e975a5.testnet"
+  }
+  // NEAR_RELAYER_KEY is a secret: `bunx wrangler secret put NEAR_RELAYER_KEY`
+}

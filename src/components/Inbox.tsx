@@ -1,0 +1,129 @@
+import { useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { ArrowDownToLine, Inbox as InboxIcon, RefreshCw } from 'lucide-react'
+import { useShielded } from '@/lib/shielded-context'
+import { timeAgo, usdcNumber, usdcText } from '@/lib/format'
+import { SPRING, STAGGER } from '@/lib/motion'
+import { AnimatedNumber, Badge, Notice, SectionLabel } from '@/components/ui'
+import { AddressCard } from '@/components/AddressCard'
+import { PaymentRequests } from '@/components/PaymentRequests'
+import { WithdrawSheet } from '@/components/WithdrawSheet'
+
+export function Inbox() {
+  const { notes, balance, refresh, refreshing, loadedOnce, error } = useShielded()
+  const [withdrawing, setWithdrawing] = useState(false)
+  const unspent = notes.filter((n) => !n.spent)
+  const spent = notes.filter((n) => n.spent)
+
+  return (
+    <div className="flex flex-col">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-[11px] text-ink-2">Private balance</p>
+          <p className="font-display text-5xl font-light text-ink">
+            {loadedOnce ? <AnimatedNumber value={usdcNumber(balance)} /> : <span className="skeleton inline-block h-10 w-32 align-middle" aria-label="Loading" />}
+            <span className="ml-2 text-2xl text-muted">USDC</span>
+          </p>
+        </div>
+        <button type="button" onClick={() => void refresh()} className="btn-ghost" aria-label="Scan for new payments">
+          <motion.span
+            animate={refreshing ? { rotate: 360 } : { rotate: 0 }}
+            transition={refreshing ? { repeat: Infinity, duration: 0.9, ease: 'linear' } : SPRING.chevron}
+            className="inline-flex"
+            aria-hidden
+          >
+            <RefreshCw className="size-4" />
+          </motion.span>
+          Scan
+        </button>
+      </div>
+
+      <div className="mt-6">
+        <AddressCard />
+        <PaymentRequests />
+      </div>
+
+      <div className="mt-8">
+        <div className="flex items-center justify-between gap-3">
+          <SectionLabel>Received</SectionLabel>
+          {balance > 0n && (
+            <motion.button
+              type="button"
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={SPRING.smooth}
+              className="btn-primary -mt-3 min-h-10 px-4 text-[0.82rem]"
+              onClick={() => setWithdrawing(true)}
+            >
+              <ArrowDownToLine className="size-4" aria-hidden /> Withdraw
+            </motion.button>
+          )}
+        </div>
+        {error && <Notice tone="error">Could not scan the pool: {error}. Try Scan again.</Notice>}
+        {!loadedOnce && !error && (
+          <ul className="space-y-2" aria-label="Scanning the pool">
+            {[0, 1, 2].map((i) => (
+              <li key={i} className="flex items-center gap-3 py-2">
+                <div className="skeleton size-10 rounded-full" />
+                <div className="flex-1 space-y-1.5">
+                  <div className="skeleton h-4 w-24" />
+                  <div className="skeleton h-3 w-36" />
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+        {loadedOnce && unspent.length === 0 && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={SPRING.smooth} className="flex flex-col items-center gap-2 py-8 text-center">
+            <InboxIcon className="size-6 text-muted" aria-hidden />
+            <p className="text-sm font-semibold text-ink">No payments yet</p>
+            <p className="max-w-xs text-xs text-ink-2 text-pretty">Copy your Zerith address above and share it. New payments show up here after a scan.</p>
+          </motion.div>
+        )}
+        <ul>
+          {unspent.map((n, i) => (
+            <motion.li
+              key={n.commitment.toString()}
+              initial={{ opacity: 0, x: -12 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ ...SPRING.smooth, delay: i * STAGGER.normal }}
+              className="row-hover group -mx-3 flex items-center gap-3 rounded-2xl px-3 py-3"
+            >
+              <span className="transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-105">
+                <Badge>
+                  <ArrowDownToLine className="size-4" />
+                </Badge>
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="font-display text-lg leading-tight text-ink">{usdcText(n.utxo.amount)} USDC</p>
+                <p className="truncate text-[11px] text-ink-2">
+                  {n.memo ? `${n.memo} · ` : ''}
+                  {timeAgo(n.timestampMs)}
+                </p>
+              </div>
+              <span className="text-[11px] font-semibold text-success">Unspent</span>
+            </motion.li>
+          ))}
+        </ul>
+      </div>
+
+      {spent.length > 0 && (
+        <div className="mt-8">
+          <SectionLabel>Spent</SectionLabel>
+          <ul className="space-y-2">
+            {spent.map((n) => (
+              <li key={n.commitment.toString()} className="flex items-center justify-between gap-3 text-sm">
+                <span className="truncate tabular-nums text-ink-2">
+                  {usdcText(n.utxo.amount)} USDC{n.memo ? ` · ${n.memo}` : ''}
+                </span>
+                <span className="shrink-0 text-[11px] text-ink-2">{timeAgo(n.timestampMs)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <AnimatePresence>{withdrawing && <WithdrawSheet onClose={() => setWithdrawing(false)} />}</AnimatePresence>
+    </div>
+  )
+}

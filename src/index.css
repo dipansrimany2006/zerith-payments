@@ -1,0 +1,273 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Brand palette */
+  --bg: #e9e9f4;
+  --line: #c4c4cd;
+  --ink: #050608;
+  --ink-2: #64656c;
+  /* --muted is 3.2:1 on --bg: icons, placeholders and large numerals only, never small body text. */
+  --muted: #807f8d;
+
+  /* Derived from the palette */
+  --canvas: #ffffff; /* page */
+  --surface: #f4f4f9; /* --bg pulled toward white, for inset panels */
+  --raised: #ffffff; /* cards, fields and chips that sit on a panel */
+  --rail: #050608; /* the nav rail stays dark in both themes */
+  --rail-fg: #ffffff;
+  --rail-hover: #c4c4cd; /* inactive rail icons on hover */
+  --rail-outline: #e9e9f4; /* focus outline on the rail */
+  --body: var(--bg);
+  --frame-ring: rgba(5, 6, 8, 0.04);
+  --rail-active: rgba(233, 233, 244, 0.14); /* --bg over the dark rail */
+  --shadow-soft: 0 1px 2px rgba(5, 6, 8, 0.04), 0 10px 28px -14px rgba(5, 6, 8, 0.16);
+  --shadow-strong: 0 12px 26px -12px rgba(5, 6, 8, 0.55);
+  --focus-ring: rgba(5, 6, 8, 0.06);
+  --overlay: rgba(5, 6, 8, 0.3);
+
+  /* Status colors, kept muted so they sit inside the monochrome palette */
+  --success: #2f7a55;
+  --danger: #b4364f;
+  --warn: #8a6416;
+
+  color-scheme: light;
+}
+
+/* Dark theme: the same palette inverted. --ink becomes the light text, --bg the near-black base. */
+:root[data-theme='dark'] {
+  --bg: #050608;
+  --line: #2c2d35;
+  --ink: #e9e9f4;
+  --ink-2: #a4a4b0;
+  --muted: #807f8d;
+
+  --canvas: #0a0b0e;
+  --surface: #121318;
+  --raised: #1a1b21;
+  --rail: #17181f;
+  --rail-fg: #e9e9f4;
+  --rail-active: rgba(233, 233, 244, 0.1);
+  --body: var(--canvas);
+  --frame-ring: var(--line);
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(233, 233, 244, 0.04), 0 10px 28px -14px rgba(0, 0, 0, 0.7);
+  --shadow-strong: 0 12px 26px -12px rgba(233, 233, 244, 0.25);
+  --focus-ring: rgba(233, 233, 244, 0.1);
+  --overlay: rgba(0, 0, 0, 0.6);
+
+  --success: #62c08f;
+  --danger: #f0798f;
+  --warn: #d9ab52;
+
+  color-scheme: dark;
+}
+
+/* Theme switches cross-fade instead of snapping. Only colors, and only while switching. */
+:root.theme-switching *,
+:root.theme-switching *::before,
+:root.theme-switching *::after {
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease,
+    fill 0.3s ease !important;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  font-family: 'Barlow', system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--body);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+.rail :focus-visible {
+  outline-color: var(--rail-outline);
+}
+
+/* Dialog surface (the withdraw sheet). */
+.frame {
+  background: var(--canvas);
+  box-shadow: 0 40px 90px -40px rgba(5, 6, 8, 0.28), 0 0 0 1px var(--frame-ring);
+}
+
+.panel {
+  background: var(--surface);
+}
+
+.box {
+  background: var(--raised);
+  box-shadow: var(--shadow-soft);
+}
+
+/* First-visit tour: an ink ring with a soft halo around the highlighted part, the rest of the page dimmed. */
+.tour-ring {
+  box-shadow:
+    0 0 0 2px var(--ink),
+    0 0 26px 2px color-mix(in srgb, var(--ink) 22%, transparent),
+    0 0 0 9999px var(--overlay);
+}
+.tour-card {
+  background: var(--raised);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-strong), var(--shadow-soft);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 48px;
+  padding: 0 1.5rem;
+  border-radius: 10px;
+  background: var(--ink);
+  color: var(--canvas);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.15s ease;
+}
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-strong);
+}
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+  box-shadow: none;
+}
+.btn-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.3;
+}
+.btn-arrow {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-primary:hover:not(:disabled) .btn-arrow {
+  transform: translateX(3px);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 40px;
+  padding: 0 0.9rem;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--raised);
+  border: 1px solid var(--line);
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+.btn-ghost:hover:not(:disabled) {
+  border-color: var(--ink);
+}
+.btn-ghost:active:not(:disabled) {
+  transform: scale(0.97);
+}
+.btn-ghost:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.field {
+  width: 100%;
+  min-height: 44px;
+  border-radius: 10px;
+  padding: 0 0.85rem;
+  font-size: 0.9rem;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid transparent;
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.field::placeholder {
+  color: var(--muted);
+}
+/* On the grey panel, fields sit on white so they stay visible. */
+.panel .field {
+  background: var(--raised);
+  border-color: var(--line);
+}
+.field:focus {
+  background: var(--raised);
+  border-color: var(--ink);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+
+/* Underlined amount field from the reference; the ink line grows from the left on focus. */
+.line-field {
+  position: relative;
+  border-bottom: 1px solid var(--line);
+}
+.line-field::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--ink);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.line-field:focus-within::after {
+  transform: scaleX(1);
+}
+/* The growing underline is the focus indicator for these inputs. */
+.line-field input:focus-visible {
+  outline: none;
+}
+
+.row-hover {
+  transition: background 0.18s ease;
+}
+.row-hover:hover {
+  background: var(--surface);
+}
+
+.skeleton {
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--surface) 0%, var(--bg) 50%, var(--surface) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

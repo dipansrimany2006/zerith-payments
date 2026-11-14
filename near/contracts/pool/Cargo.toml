@@ -1,0 +1,20 @@
+[package]
+name = "zerith-pool"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+near-sdk = { workspace = true }
+ark-bn254 = { workspace = true, features = ["curve"] }
+ark-ff = { workspace = true }
+
+[dev-dependencies]
+near-sdk = { workspace = true, features = ["unit-testing"] }
+near-workspaces = { version = "0.24.0", features = ["unstable"] }
+tokio = { version = "1", features = ["full"] }
+serde_json = "1"
+anyhow = "1"

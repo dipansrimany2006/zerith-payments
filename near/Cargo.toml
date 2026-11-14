@@ -1,0 +1,17 @@
+[workspace]
+resolver = "2"
+members = ["contracts/pool", "contracts/mock-ft"]
+
+[workspace.dependencies]
+near-sdk = "5.30.2"
+near-contract-standards = "5.30.2"
+ark-bn254 = { version = "0.6.0", default-features = false }
+ark-ff = { version = "0.6.0", default-features = false }
+
+[profile.release]
+codegen-units = 1
+opt-level = "z"
+lto = true
+debug = false
+panic = "abort"
+overflow-checks = true
