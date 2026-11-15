@@ -9,7 +9,7 @@ who paid whom. A viewing key lets you prove your payments to an auditor when you
 > in it now is the NEAR version: a new Rust contract, a new join-split circuit, NEAR wallet login and
 > a NEAR relayer.
 
-**Live app:** https://zerith-near.storiesdotfun.workers.dev (NEAR testnet)
+**Live app:** https://zerith.dipansrimany.workers.dev (NEAR testnet)
 
 **Status:** live on **NEAR testnet**. Pool: [`zerith-pool-e975a5.testnet`](https://testnet.nearblocks.io/address/zerith-pool-e975a5.testnet).
 It uses Circle's testnet USDC. Get some at [faucet.circle.com](https://faucet.circle.com) by choosing
